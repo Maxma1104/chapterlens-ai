@@ -2,6 +2,7 @@
 
 ## 0.1.0 — 2026-07-18
 
+- Published the public deterministic demo at `chapterlens.vercel.app` and enabled GitHub Actions verification.
 - Added the editorial landing page, review desk, source-linked report, history, login, feedback, and responsive states.
 - Added OpenAI structured analysis with deterministic no-key demo mode.
 - Added exact citation validation, unsupported-claim removal, and refusal.

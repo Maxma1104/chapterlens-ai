@@ -4,7 +4,11 @@
 
 ChapterLens turns a novel chapter or long excerpt into a structured editorial review: summary, characters, relationships, timeline, continuity signals, pacing, and revision suggestions. Every analytical claim links to an exact source quote. If the source cannot support a claim, the validation layer removes it; if it cannot support the summary, the product refuses clearly.
 
-> Portfolio status: the product is complete and verified locally. Public Vercel deployment and a real OpenAI baseline require the owner's cloud credentials; the repository runs immediately in deterministic demo mode without them.
+> Portfolio status: the public demo is live and the complete repository is verified by GitHub Actions. The hosted site intentionally runs the deterministic, zero-cost demo engine until Supabase and OpenAI production keys are configured.
+
+- **Live demo:** [chapterlens.vercel.app](https://chapterlens.vercel.app)
+- **CI:** [latest GitHub Actions run](https://github.com/Maxma1104/chapterlens-ai/actions)
+- **Evaluation:** [55-case baseline](evaluations/results/REPORT.md)
 
 ![ChapterLens product interface](docs/assets/chapterlens-hero.png)
 
