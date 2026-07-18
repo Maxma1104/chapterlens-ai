@@ -19,4 +19,23 @@ describe("demo analysis", () => {
       expect(sampleManuscript.slice(evidence.start, evidence.end)).toBe(evidence.quote);
     }
   });
+
+  it("handles recurring characters first introduced after the evidence preview", async () => {
+    const laterCharacterManuscript = [
+      "John waits by the window.",
+      "It is quiet.",
+      "It remains quiet.",
+      "It grows darker.",
+      "It starts to rain.",
+      "It becomes cold.",
+      "It feels late.",
+      "It is nearly midnight.",
+      "Jennie arrives. Jennie smiles. Jennie waits beside the door.",
+    ].join("\n\n");
+
+    const report = await analyzeWithDemoEngine(laterCharacterManuscript, "Late Arrival");
+
+    expect(report.characters.map((character) => character.name)).toContain("Jennie");
+    expect(report.characters.every((character) => character.evidenceIds.length > 0)).toBe(true);
+  });
 });

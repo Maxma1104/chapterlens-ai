@@ -41,8 +41,16 @@ function extractNames(text: string): string[] {
     .map(([name]) => name);
 }
 
-function makeEvidence(text: string, paragraphs: string[]): Evidence[] {
-  return paragraphs.slice(0, 8).map((quote, index) => {
+function makeEvidence(text: string, paragraphs: string[], requiredNames: string[]): Evidence[] {
+  const selectedParagraphs = paragraphs.slice(0, 8);
+  for (const name of requiredNames) {
+    const characterParagraph = paragraphs.find((paragraph) => paragraph.includes(name));
+    if (characterParagraph && !selectedParagraphs.includes(characterParagraph)) {
+      selectedParagraphs.push(characterParagraph);
+    }
+  }
+
+  return selectedParagraphs.map((quote, index) => {
     const start = text.indexOf(quote);
     return {
       id: `e${index + 1}`,
@@ -68,7 +76,7 @@ export async function analyzeWithDemoEngine(
   const paragraphs = paragraphsFrom(text);
   const names = extractNames(text);
   await reportStage?.("indexing");
-  const evidence = makeEvidence(text, paragraphs);
+  const evidence = makeEvidence(text, paragraphs, names);
   const ids = evidence.map((item) => item.id);
   const [firstName = "the viewpoint character", secondName = "the other character"] = names;
   const hasLockedRoomSignal = /lock|key|door|undamaged/iu.test(text);
