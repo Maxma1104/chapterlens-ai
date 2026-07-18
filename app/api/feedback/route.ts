@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseAuthContext } from "@/lib/supabase/auth-context";
 
 const feedbackSchema = z.object({
   analysisId: z.string().uuid(),
@@ -11,10 +11,13 @@ const feedbackSchema = z.object({
 export async function POST(request: NextRequest) {
   const result = feedbackSchema.safeParse(await request.json());
   if (!result.success) return NextResponse.json({ error: "Invalid feedback." }, { status: 400 });
-  const supabase = await createSupabaseServerClient();
-  if (!supabase) return NextResponse.json({ accepted: true, persisted: false });
-  const { data } = await supabase.auth.getClaims();
-  const userId = data?.claims?.sub;
+  const { supabase, userId } = await getSupabaseAuthContext();
+  if (!supabase) {
+    return NextResponse.json(
+      { error: "Feedback storage is not configured for this deployment." },
+      { status: 503 },
+    );
+  }
   if (!userId) return NextResponse.json({ error: "Sign in to save feedback." }, { status: 401 });
   const { error } = await supabase.from("feedback").insert({
     analysis_id: result.data.analysisId,

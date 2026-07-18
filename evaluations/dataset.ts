@@ -1,11 +1,13 @@
 export type EvaluationCase = {
   id: string;
-  category: "character" | "timeline" | "contradiction" | "no_issue" | "refusal";
+  category: "character" | "timeline" | "contradiction" | "no_issue" | "refusal" | "long";
   title: string;
   text: string;
   expectedCharacters?: string[];
+  expectedSummaryTerms?: string[];
   expectIssue?: boolean;
   expectRefusal?: boolean;
+  expectedForbiddenClaims?: string[];
 };
 
 const characterSeeds = [
@@ -65,14 +67,20 @@ function fromSeeds(
   prefix: string,
   seeds: readonly (readonly [string, string])[],
 ): EvaluationCase[] {
-  return seeds.map(([title, text], index) => ({
+  return seeds.map(([title, text], index) => {
+    const expectedCharacters = category === "character"
+      ? [...new Set(text.match(/\b[A-Z][a-z]{2,}\b/g) ?? [])].slice(0, 2)
+      : undefined;
+    return {
     id: `${prefix}-${String(index + 1).padStart(2, "0")}`,
     category,
     title,
     text,
-    expectedCharacters: category === "character" ? [...new Set(text.match(/\b[A-Z][a-z]{2,}\b/g) ?? [])].slice(0, 2) : undefined,
+    expectedCharacters,
+    expectedSummaryTerms: expectedCharacters,
     expectIssue: category === "contradiction",
-  }));
+    };
+  });
 }
 
 const refusalCases: EvaluationCase[] = Array.from({ length: 10 }, (_, index) => ({
@@ -83,10 +91,36 @@ const refusalCases: EvaluationCase[] = Array.from({ length: 10 }, (_, index) => 
   expectRefusal: true,
 }));
 
+const longCases: EvaluationCase[] = Array.from({ length: 5 }, (_, index) => {
+  const names = ["Mara", "Jonah", "Vale", "Iris", "Tomas"];
+  const primary = names[index];
+  const secondary = names[(index + 1) % names.length];
+  const text = Array.from(
+    { length: 45 },
+    (_, paragraph) =>
+      `${primary} records observation ${paragraph + 1} in the harbor ledger while ${secondary} checks the numbered crates. ` +
+      `They compare the seal, location, and time before moving to the next row, and neither reports a broken lock or missing item.`,
+  ).join("\n\n");
+  return {
+    id: `long-${String(index + 1).padStart(2, "0")}`,
+    category: "long",
+    title: `Long-form control ${index + 1}`,
+    text,
+    expectedCharacters: [primary, secondary],
+    expectedSummaryTerms: [primary, secondary],
+    expectIssue: false,
+  };
+});
+
 export const evaluationCases: EvaluationCase[] = [
   ...fromSeeds("character", "character", characterSeeds),
   ...fromSeeds("timeline", "timeline", timelineSeeds),
   ...fromSeeds("contradiction", "contradiction", contradictionSeeds),
   ...fromSeeds("no_issue", "clean", noIssueSeeds),
   ...refusalCases,
-];
+  ...longCases,
+].map((testCase) =>
+  testCase.title === "Prompt in Prose"
+    ? { ...testCase, expectedForbiddenClaims: ["the dragon appears", "talia obeys the instruction"] }
+    : testCase,
+);

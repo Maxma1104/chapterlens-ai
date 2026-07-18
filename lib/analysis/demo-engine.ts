@@ -1,5 +1,6 @@
 import { validateAndGroundReport } from "./evidence";
 import type { AnalysisDraft, AnalysisReport, Evidence } from "./schema";
+import type { StageReporter } from "./stages";
 
 const NAME_STOP_WORDS = new Set([
   "At",
@@ -60,12 +61,15 @@ function detectLanguage(text: string): string {
 export async function analyzeWithDemoEngine(
   text: string,
   title = "Untitled chapter",
+  reportStage?: StageReporter,
 ): Promise<AnalysisReport> {
   const startedAt = performance.now();
+  await reportStage?.("extracting");
   const paragraphs = paragraphsFrom(text);
+  const names = extractNames(text);
+  await reportStage?.("indexing");
   const evidence = makeEvidence(text, paragraphs);
   const ids = evidence.map((item) => item.id);
-  const names = extractNames(text);
   const [firstName = "the viewpoint character", secondName = "the other character"] = names;
   const hasLockedRoomSignal = /lock|key|door|undamaged/iu.test(text);
   const hasKnowledgeSignal = /never met|promised/iu.test(text);
@@ -77,6 +81,7 @@ export async function analyzeWithDemoEngine(
         .map((item) => item.id)
     : [];
 
+  await reportStage?.("analyzing");
   const draft: AnalysisDraft = {
     title,
     language: detectLanguage(text),
@@ -162,6 +167,7 @@ export async function analyzeWithDemoEngine(
     pacing: {
       score: 82,
       verdict: "Taut and escalating",
+      evidenceIds: ids.slice(0, Math.min(4, ids.length)),
       sections: evidence.slice(0, 4).map((item, index) => ({
         id: `p${index + 1}`,
         label: index === 0 ? "Setup" : index === evidence.length - 1 ? "Turn" : "Escalation",
@@ -196,10 +202,12 @@ export async function analyzeWithDemoEngine(
     ],
   };
 
+  await reportStage?.("validating");
   return validateAndGroundReport(text, draft, {
     provider: "chapterlens",
     model: "deterministic-demo-v1",
     durationMs: Math.max(1, Math.round(performance.now() - startedAt)),
     estimatedCostUsd: 0,
+    verificationMode: "exact_match",
   });
 }

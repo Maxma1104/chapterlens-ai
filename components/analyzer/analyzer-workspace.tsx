@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import {
   AlertCircle,
@@ -14,15 +14,20 @@ import {
 import { Brand } from "@/components/brand";
 import { DEMO_TEXT, DEMO_TITLE } from "@/lib/demo-text";
 import type { AnalysisReport } from "@/lib/analysis/schema";
+import {
+  MAX_TEXT_LENGTH,
+  MAX_TITLE_LENGTH,
+  MIN_TEXT_LENGTH,
+} from "@/lib/product-policy";
 import { ReportView } from "./report-view";
 
 const stages = [
-  "Cleaning and segmenting text",
-  "Extracting characters and events",
-  "Building the evidence index",
-  "Running editorial diagnostics",
-  "Validating every citation",
-];
+  { id: "cleaning", label: "Cleaning and segmenting text" },
+  { id: "extracting", label: "Extracting characters and events" },
+  { id: "indexing", label: "Building the evidence index" },
+  { id: "analyzing", label: "Running editorial diagnostics" },
+  { id: "validating", label: "Validating claim support" },
+] as const;
 
 type ApiResponse = {
   report?: AnalysisReport;
@@ -40,21 +45,15 @@ export function AnalyzerWorkspace() {
   const [remaining, setRemaining] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (status !== "analyzing") return;
-    const timer = window.setInterval(() => setStage((current) => Math.min(current + 1, stages.length - 1)), 900);
-    return () => window.clearInterval(timer);
-  }, [status]);
-
   async function analyze() {
     setError("");
-    if (text.trim().length < 120) {
-      setError("Add at least 120 characters so ChapterLens has enough evidence to analyze.");
+    if (text.trim().length < MIN_TEXT_LENGTH) {
+      setError(`Add at least ${MIN_TEXT_LENGTH} characters so ChapterLens has enough evidence to analyze.`);
       setStatus("error");
       return;
     }
-    if (text.length > 50_000) {
-      setError("This MVP accepts up to 50,000 characters per analysis.");
+    if (text.length > MAX_TEXT_LENGTH) {
+      setError(`This MVP accepts up to ${MAX_TEXT_LENGTH.toLocaleString()} characters per analysis.`);
       setStatus("error");
       return;
     }
@@ -67,7 +66,16 @@ export function AnalyzerWorkspace() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, title: title || "Untitled chapter" }),
       });
-      const payload = (await response.json()) as ApiResponse;
+      if (!response.ok) {
+        const failedPayload = (await response.json()) as ApiResponse;
+        throw new Error(failedPayload.error?.message ?? "Analysis failed.");
+      }
+      const payload = response.headers.get("content-type")?.includes("application/x-ndjson")
+        ? await readAnalysisStream(response, (stageId) => {
+            const index = stages.findIndex((item) => item.id === stageId);
+            if (index >= 0) setStage(index);
+          })
+        : ((await response.json()) as ApiResponse);
       if (!response.ok || !payload.report) throw new Error(payload.error?.message ?? "Analysis failed.");
       setReport(payload.report);
       setRemaining(payload.usage?.remaining ?? null);
@@ -124,7 +132,7 @@ export function AnalyzerWorkspace() {
           </div>
           <label className="title-field">
             <span>Chapter title <small>optional</small></span>
-            <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="e.g. Chapter 7 — The Crossing" maxLength={120} />
+            <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="e.g. Chapter 7 — The Crossing" maxLength={MAX_TITLE_LENGTH} />
           </label>
           <div className="editor-wrap">
             <textarea
@@ -136,7 +144,7 @@ export function AnalyzerWorkspace() {
             <div className="editor-footer">
               <button onClick={() => fileRef.current?.click()}><Upload size={14} /> Upload .txt</button>
               <input ref={fileRef} type="file" accept=".txt,text/plain" hidden onChange={(event) => handleFile(event.target.files?.[0])} />
-              <span className={text.length > 50_000 ? "over-limit" : ""}>{text.length.toLocaleString()} / 50,000 characters</span>
+              <span className={text.length > MAX_TEXT_LENGTH ? "over-limit" : ""}>{text.length.toLocaleString()} / {MAX_TEXT_LENGTH.toLocaleString()} characters</span>
             </div>
           </div>
 
@@ -146,7 +154,7 @@ export function AnalyzerWorkspace() {
             <ShieldMini />
             <span><strong>Private by design.</strong> Text is sent only to the configured analysis provider and is never used as public content.</span>
           </div>
-          <button className="analyze-button" disabled={status === "analyzing" || text.trim().length < 120} onClick={analyze}>
+          <button className="analyze-button" disabled={status === "analyzing" || text.trim().length < MIN_TEXT_LENGTH} onClick={analyze}>
             {status === "analyzing" ? <><LoaderCircle className="spin" size={18} /> Analyzing manuscript…</> : <><Sparkles size={17} /> Run evidence-grounded review</>}
           </button>
           {remaining !== null && <p className="usage-note">{remaining} free {remaining === 1 ? "analysis" : "analyses"} remaining today.</p>}
@@ -190,9 +198,46 @@ function ProgressView({ activeStage }: { activeStage: number }) {
     <div className="scan-icon"><Sparkles size={26} /><span /></div>
     <span className="step-tag">ANALYSIS IN PROGRESS</span>
     <h2>Reading like an editor.<br /><em>Checking like an auditor.</em></h2>
-    <div className="stage-list">{stages.map((item, index) => <div key={item} className={index < activeStage ? "done" : index === activeStage ? "active" : ""}><i>{index < activeStage ? "✓" : index + 1}</i><span>{item}</span>{index === activeStage && <LoaderCircle className="spin" size={15} />}</div>)}</div>
+    <div className="stage-list">{stages.map((item, index) => <div key={item.id} className={index < activeStage ? "done" : index === activeStage ? "active" : ""}><i>{index < activeStage ? "✓" : index + 1}</i><span>{item.label}</span>{index === activeStage && <LoaderCircle className="spin" size={15} />}</div>)}</div>
     <p>Longer chapters can take up to a minute. Keep this tab open.</p>
   </div>;
+}
+
+async function readAnalysisStream(
+  response: Response,
+  onStage: (stage: string) => void,
+): Promise<ApiResponse> {
+  if (!response.body) throw new Error("The analysis stream was unavailable.");
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let result: ApiResponse = {};
+
+  while (true) {
+    const { value, done } = await reader.read();
+    buffer += decoder.decode(value, { stream: !done });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+    for (const line of lines.filter(Boolean)) {
+      const event = JSON.parse(line) as {
+        type: "stage" | "result" | "error";
+        stage?: string;
+        report?: AnalysisReport;
+        usage?: { remaining: number; resetAt: string };
+        error?: { code: string; message: string };
+      };
+      if (event.type === "stage" && event.stage) onStage(event.stage);
+      if (event.type === "result") {
+        result = { report: event.report, usage: event.usage };
+      }
+      if (event.type === "error") {
+        throw new Error(event.error?.message ?? "Analysis failed.");
+      }
+    }
+    if (done) break;
+  }
+
+  return result;
 }
 
 function ShieldMini() {

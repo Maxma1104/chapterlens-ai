@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseAuthContext } from "@/lib/supabase/auth-context";
 
 export async function GET() {
-  const supabase = await createSupabaseServerClient();
+  const { supabase, userId } = await getSupabaseAuthContext();
   if (!supabase) return NextResponse.json({ entries: [], mode: "local" });
-  const { data: claimsData } = await supabase.auth.getClaims();
-  if (!claimsData?.claims?.sub) return NextResponse.json({ entries: [], mode: "signed-out" });
+  if (!userId) return NextResponse.json({ entries: [], mode: "signed-out" });
   const { data, error } = await supabase
     .from("analyses")
     .select("report, source_text, created_at")

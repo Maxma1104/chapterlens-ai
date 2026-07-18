@@ -28,7 +28,7 @@
 ## Before public launch
 
 1. Confirm provider data-retention settings and publish a privacy policy.
-2. Add distributed anonymous rate limiting or require sign-in.
+2. Add distributed anonymous rate limiting; anonymous requests are already restricted to the zero-cost demo engine.
 3. Add content deletion and account export flows.
 4. Run dependency, RLS, and upload-policy tests against a staging project.
 5. Set budget alerts at the provider and application levels.

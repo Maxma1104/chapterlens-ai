@@ -1,10 +1,12 @@
 import { z } from "zod";
-
-export const MIN_TEXT_LENGTH = 120;
-export const MAX_TEXT_LENGTH = 50_000;
+import {
+  MAX_TEXT_LENGTH,
+  MAX_TITLE_LENGTH,
+  MIN_TEXT_LENGTH,
+} from "@/lib/product-policy";
 
 export const analysisInputSchema = z.object({
-  title: z.string().trim().max(120).optional().default("Untitled chapter"),
+  title: z.string().trim().max(MAX_TITLE_LENGTH).optional().default("Untitled chapter"),
   text: z
     .string()
     .trim()
@@ -75,7 +77,12 @@ const pacingSectionSchema = z.object({
 const pacingSchema = z.object({
   score: z.number().int().min(0).max(100),
   verdict: z.string(),
+  evidenceIds: z.array(z.string()).min(1),
   sections: z.array(pacingSectionSchema),
+});
+
+const reportPacingSchema = pacingSchema.extend({
+  evidenceIds: z.array(z.string()),
 });
 
 const suggestionSchema = z.object({
@@ -103,6 +110,7 @@ export const analysisDraftSchema = z.object({
 
 export const analysisReportSchema = analysisDraftSchema.extend({
   summary: reportCitedTextSchema,
+  pacing: reportPacingSchema,
   id: z.string(),
   wordCount: z.number().int().nonnegative(),
   overallConfidence: z.number().min(0).max(1),
@@ -120,6 +128,7 @@ export const analysisReportSchema = analysisDraftSchema.extend({
     outputTokens: z.number().int().nonnegative().optional(),
     estimatedCostUsd: z.number().nonnegative().optional(),
     cached: z.boolean().optional(),
+    verificationMode: z.enum(["exact_match", "entailment"]).optional(),
   }),
 });
 

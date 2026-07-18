@@ -34,7 +34,7 @@ Click citation `1` and show the highlighted source.
 
 Open history, then briefly show the GitHub evaluation report and CI workflow.
 
-“Signed-in data is isolated with row-level security. The repository includes atomic quotas, cost logging, monitoring, tests, and 50 evaluation cases.”
+“Signed-in data is isolated with row-level security. The repository includes atomic quotas, cost logging, monitoring, tests, and 55 evaluation cases with explicit metric boundaries.”
 
 ## 1:55–2:00 — Close
 

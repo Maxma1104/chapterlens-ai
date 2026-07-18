@@ -44,7 +44,7 @@ The second difficulty was product coherence. Authentication, progress, error sta
 
 ## Evaluation
 
-The evaluator covers 50 cases in five groups: characters, timeline, contradictions, clean/adversarial prose, and unsupported-claim refusal probes. It measures exact citation accuracy, character recall, contradiction classification, refusal accuracy, hallucinated citation rate, latency, and estimated cost.
+The evaluator covers 55 cases: characters, timeline, contradictions, clean/adversarial prose, long inputs, and fail-closed refusal-policy probes. It separately labels exact citation integrity, policy behavior, summary-term recall, errors, latency, and estimated cost. Model support accuracy and hallucination rate remain explicitly unreported until an independent judged provider run exists.
 
 The repository commits a deterministic-engine baseline only. Before using metrics in a résumé, the production model should be evaluated with pinned model ID, date, dataset revision, and pricing.
 
@@ -54,7 +54,7 @@ The repository commits a deterministic-engine baseline only. Before using metric
 - `.txt` only in the MVP
 - Exact quotes support auditability but not entailment; a real quote can still be interpreted badly
 - Anonymous cache and quota are process-local
-- The 50-case set is synthetic and must be supplemented with licensed, human-annotated manuscripts
+- The 55-case set is synthetic and must be supplemented with licensed, human-annotated manuscripts
 
 ## Next experiment
 

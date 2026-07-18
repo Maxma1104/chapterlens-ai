@@ -10,7 +10,7 @@ ChapterLens turns a novel chapter or long excerpt into a structured editorial re
 
 ## Why this is more than an API wrapper
 
-The system separates five concerns that a single prompt collapses:
+The production provider separates five concerns across three typed model stages and one deterministic boundary:
 
 1. Input policy and text segmentation
 2. Structured extraction and editorial reasoning
@@ -44,12 +44,16 @@ flowchart LR
   P --> C{"Cached?"}
   C -->|yes| R["Structured report"]
   C -->|no| M{"Provider"}
-  M -->|API key| O["OpenAI Responses API"]
+  M -->|API key| E["Typed extraction call"]
   M -->|no key| D["Deterministic demo engine"]
-  O --> V["Evidence validator"]
+  E --> I["Chunk evidence index"]
+  I --> O["Editorial analysis call"]
+  O --> V["Exact-quote validator"]
   D --> V
-  V -->|exact quotes only| R
-  V -->|insufficient support| X["Explicit refusal"]
+  V -->|production| SV["Claim-support verifier call"]
+  V -->|demo: exact-match boundary| R
+  SV -->|supported claims only| R
+  SV -->|insufficient support| X["Explicit refusal"]
   R --> S["Supabase Postgres + RLS"]
   R --> UI
   API --> OBS["Sentry + PostHog"]
@@ -66,7 +70,7 @@ More detail: [architecture](docs/ARCHITECTURE.md) and [initial ADR](docs/decisio
 | AI | OpenAI Responses API + strict Zod output | Typed structured responses and provider usage metadata |
 | Grounding | Exact substring validation | Simple, falsifiable, and impossible to fake with a close paraphrase |
 | Data | Supabase Postgres, Auth, Storage, pgvector | RLS-backed ownership, private uploads, future retrieval seam |
-| Quality | Vitest, Playwright, 50-case evaluator | Unit, integration, browser, and AI-behavior evidence |
+| Quality | Vitest, Playwright, 55-case evaluator | Unit, integration, browser, and AI-behavior evidence |
 | Operations | Sentry, PostHog, Vercel | Errors, product events, and serverless deployment |
 
 The framework and auth setup follow the current official [Next.js App Router](https://nextjs.org/docs/app) and [Supabase SSR](https://supabase.com/docs/guides/auth/server-side) guidance. AI calls use the official [OpenAI Responses API](https://platform.openai.com/docs/api-reference/responses).
@@ -104,7 +108,7 @@ npm run build
 npm run eval
 ```
 
-The committed evaluation suite contains 50 cases across character extraction, chronology, contradiction, clean-text, prompt-injection, and refusal probes. See [the latest report](evaluations/results/REPORT.md).
+The committed evaluation suite contains 55 cases across character extraction, chronology, contradiction, clean-text, prompt-injection, long-input, and fail-closed refusal-policy probes. Exact-citation metrics prove quote presence—not claim entailment. Until an independent judged OpenAI run exists, model claim-support accuracy and hallucination rate are deliberately reported as “Not run.” See [the latest report](evaluations/results/REPORT.md).
 
 Do not quote the deterministic demo baseline as model quality. Run `npm run eval` with the intended production model and commit the resulting provider-specific report before publishing metrics.
 
@@ -121,7 +125,7 @@ Do not quote the deterministic demo baseline as model quality. Run `npm run eval
 - Configurable token-price calculation and per-analysis cost storage
 - No raw error objects returned to users
 
-The deliberate limitation: the demo cache and anonymous quota are process-local. Production user quota is durable and atomic in Postgres. A distributed cache would be the next change at sustained multi-instance traffic.
+The deliberate limitation: the demo cache and anonymous quota are process-local, and anonymous requests always use the zero-cost deterministic engine. Authenticated production quota and monthly spend reservations are durable and atomic in Postgres. A distributed cache would be the next change at sustained multi-instance traffic.
 
 ## Portfolio guide
 
@@ -139,7 +143,7 @@ components/          landing, review desk, report, history UI
 lib/analysis/        schemas, provider orchestration, evidence validation
 lib/supabase/        auth, persistence, configuration
 database/migrations/ Postgres, pgvector, RLS, quotas, private storage
-evaluations/         50-case dataset, runner, latest metrics
+evaluations/         55-case dataset, runner, latest metrics
 tests/               unit, integration, browser flows
 docs/                architecture, case study, interview and deployment
 .github/workflows/   automated verification

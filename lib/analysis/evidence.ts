@@ -40,6 +40,7 @@ export function validateAndGroundReport(
     items.filter((item) => hasEvidence(item.evidenceIds, validIds));
 
   const summaryIsGrounded = hasEvidence(draft.summary.evidenceIds, validIds);
+  const pacingIsGrounded = hasEvidence(draft.pacing.evidenceIds, validIds);
   const grounded = {
     ...draft,
     evidence,
@@ -56,7 +57,12 @@ export function validateAndGroundReport(
     consistencyIssues: filterCited(draft.consistencyIssues),
     pacing: {
       ...draft.pacing,
-      sections: filterCited(draft.pacing.sections),
+      score: pacingIsGrounded ? draft.pacing.score : 0,
+      verdict: pacingIsGrounded
+        ? draft.pacing.verdict
+        : "Evidence insufficient to assess overall pacing.",
+      evidenceIds: pacingIsGrounded ? draft.pacing.evidenceIds : [],
+      sections: pacingIsGrounded ? filterCited(draft.pacing.sections) : [],
     },
     suggestions: filterCited(draft.suggestions),
   };

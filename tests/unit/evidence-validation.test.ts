@@ -30,7 +30,7 @@ describe("evidence grounding", () => {
         },
       ],
       consistencyIssues: [],
-      pacing: { score: 72, verdict: "Steady", sections: [] },
+      pacing: { score: 72, verdict: "Steady", evidenceIds: ["e1"], sections: [] },
       suggestions: [],
     };
 

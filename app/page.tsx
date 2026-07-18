@@ -64,7 +64,7 @@ export default function Home() {
         <div className="report-preview" aria-label="Example ChapterLens report">
           <div className="preview-topbar">
             <div><span className="preview-mark">CL</span><strong>Review / 07</strong></div>
-            <span className="confidence-pill"><i /> 92% grounded</span>
+            <span className="confidence-pill"><i /> 92% evidence matched</span>
           </div>
           <div className="preview-heading">
             <span>MANUSCRIPT REVIEW</span>

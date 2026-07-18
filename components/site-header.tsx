@@ -9,7 +9,13 @@ export function SiteHeader() {
         <Link href="/#method">Method</Link>
         <Link href="/analyze">Review desk</Link>
         <Link href="/history">History</Link>
-        <a href="https://github.com" target="_blank" rel="noreferrer">GitHub</a>
+        <a
+          href="https://github.com/Maxma1104/chapterlens-ai"
+          target="_blank"
+          rel="noreferrer"
+        >
+          GitHub
+        </a>
       </nav>
       <Link className="header-login" href="/login">Sign in <span>↗</span></Link>
     </header>

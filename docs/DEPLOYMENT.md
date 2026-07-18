@@ -9,7 +9,7 @@
 
 ## OpenAI
 
-1. Create a project-scoped API key and a conservative monthly budget.
+1. Create a project-scoped API key. Adjust the trusted `app_config` rows in the database migration if the default $25 monthly ceiling or $0.25 request reservation should change.
 2. Set `OPENAI_API_KEY` and pin `OPENAI_MODEL`.
 3. Set the current input and output price variables so stored cost estimates are meaningful.
 4. Run `npm run eval` against the pinned model before advertising quality metrics.
@@ -23,4 +23,4 @@
 
 ## Release gate
 
-`npm run check` and the Chromium Playwright flow must pass. Then run the 50-case evaluation and archive its model ID, date, metrics, and cost.
+`npm run check` and both desktop/mobile Chromium flows must pass. Then run the 55-case evaluation and archive its model ID, date, metrics, and cost.

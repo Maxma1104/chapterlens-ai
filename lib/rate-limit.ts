@@ -1,4 +1,6 @@
-export const DAILY_ANALYSIS_LIMIT = 5;
+import { DAILY_ANALYSIS_LIMIT } from "./product-policy";
+
+export { DAILY_ANALYSIS_LIMIT } from "./product-policy";
 
 type Usage = { date: string; count: number };
 const usageByIdentity = new Map<string, Usage>();
