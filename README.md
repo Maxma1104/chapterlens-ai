@@ -1,36 +1,150 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ChapterLens
 
-## Getting Started
+**Evidence-grounded AI manuscript analysis for writers and editors.**
 
-First, run the development server:
+ChapterLens turns a novel chapter or long excerpt into a structured editorial review: summary, characters, relationships, timeline, continuity signals, pacing, and revision suggestions. Every analytical claim links to an exact source quote. If the source cannot support a claim, the validation layer removes it; if it cannot support the summary, the product refuses clearly.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+> Portfolio status: the product is complete and verified locally. Public Vercel deployment and a real OpenAI baseline require the owner's cloud credentials; the repository runs immediately in deterministic demo mode without them.
+
+![ChapterLens product interface](docs/assets/chapterlens-hero.png)
+
+## Why this is more than an API wrapper
+
+The system separates five concerns that a single prompt collapses:
+
+1. Input policy and text segmentation
+2. Structured extraction and editorial reasoning
+3. Exact-quote evidence normalization
+4. Unsupported-claim removal and low-confidence refusal
+5. Persistence, quota, cost, feedback, and evaluation
+
+The result is inspectable. A reviewer can click citation `3`, see the original span highlighted, and decide whether the conclusion is warranted.
+
+## Product surface
+
+- Editorial landing page and project story
+- Passwordless email authentication with Supabase
+- Paste or `.txt` upload with a 50,000-character cap
+- Five-stage analysis progress and retry states
+- Summary, character map, relationships, timeline, continuity, pacing, and revision plan
+- Exact citation navigation with source highlighting
+- Local demo history plus signed-in Supabase history
+- Helpful / not-yet feedback capture
+- Five analyses per user per UTC day
+- Health check, Sentry errors, PostHog product events, and cost metadata
+- Responsive layouts for desktop and mobile
+
+## Architecture
+
+```mermaid
+flowchart LR
+  U["Writer / editor"] --> UI["Next.js review desk"]
+  UI --> API["Analysis route"]
+  API --> P["Input + quota policy"]
+  P --> C{"Cached?"}
+  C -->|yes| R["Structured report"]
+  C -->|no| M{"Provider"}
+  M -->|API key| O["OpenAI Responses API"]
+  M -->|no key| D["Deterministic demo engine"]
+  O --> V["Evidence validator"]
+  D --> V
+  V -->|exact quotes only| R
+  V -->|insufficient support| X["Explicit refusal"]
+  R --> S["Supabase Postgres + RLS"]
+  R --> UI
+  API --> OBS["Sentry + PostHog"]
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+More detail: [architecture](docs/ARCHITECTURE.md) and [initial ADR](docs/decisions/0001-grounding-pipeline.md).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Layer | Choice | Why |
+| --- | --- | --- |
+| Product | Next.js 16, React 19, TypeScript | One deployable unit with server routes and App Router |
+| UI | Tailwind 4 + handcrafted editorial CSS | Fast iteration without a generic dashboard aesthetic |
+| AI | OpenAI Responses API + strict Zod output | Typed structured responses and provider usage metadata |
+| Grounding | Exact substring validation | Simple, falsifiable, and impossible to fake with a close paraphrase |
+| Data | Supabase Postgres, Auth, Storage, pgvector | RLS-backed ownership, private uploads, future retrieval seam |
+| Quality | Vitest, Playwright, 50-case evaluator | Unit, integration, browser, and AI-behavior evidence |
+| Operations | Sentry, PostHog, Vercel | Errors, product events, and serverless deployment |
 
-## Learn More
+The framework and auth setup follow the current official [Next.js App Router](https://nextjs.org/docs/app) and [Supabase SSR](https://supabase.com/docs/guides/auth/server-side) guidance. AI calls use the official [OpenAI Responses API](https://platform.openai.com/docs/api-reference/responses).
 
-To learn more about Next.js, take a look at the following resources:
+## Run locally
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Requirements: Node.js 22+ and npm 10+.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm install
+cp .env.example .env.local
+npm run dev
+```
 
-## Deploy on Vercel
+Open `http://localhost:3000`. With empty cloud variables, ChapterLens uses the deterministic demo engine and browser-local history. Click **Load example** to exercise the complete flow.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Enable production services
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Create a Supabase project and run `database/migrations/0001_initial.sql`.
+2. Add the Supabase URL and publishable key to `.env.local`.
+3. Add `OPENAI_API_KEY`; optionally set the model and current per-million-token pricing.
+4. Add Sentry and PostHog keys if monitoring is required.
+5. Follow [deployment.md](docs/DEPLOYMENT.md) to configure Vercel and auth redirects.
+
+No secret is required in the browser. Manuscripts belong to the authenticated user through Postgres RLS; the storage bucket is private.
+
+## Verify the product
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run test:e2e
+npm run build
+npm run eval
+```
+
+The committed evaluation suite contains 50 cases across character extraction, chronology, contradiction, clean-text, prompt-injection, and refusal probes. See [the latest report](evaluations/results/REPORT.md).
+
+Do not quote the deterministic demo baseline as model quality. Run `npm run eval` with the intended production model and commit the resulting provider-specific report before publishing metrics.
+
+## Failure and cost controls
+
+- 120–50,000 character input window
+- Strict schema validation at both request and model boundaries
+- Exact source-substring validation and repaired offsets
+- Claims with missing or invalid evidence are dropped
+- Explicit refusal when the summary has no valid evidence
+- Two provider retries, 90-second timeout, 120-second route ceiling
+- Content-addressed 24-hour cache with bounded memory
+- Atomic five-per-day quota and monthly dollar ceiling for signed-in users; IP fallback in local demo mode
+- Configurable token-price calculation and per-analysis cost storage
+- No raw error objects returned to users
+
+The deliberate limitation: the demo cache and anonymous quota are process-local. Production user quota is durable and atomic in Postgres. A distributed cache would be the next change at sustained multi-instance traffic.
+
+## Portfolio guide
+
+- [Case study](docs/CASE_STUDY.md) — problem, decisions, tradeoffs, results
+- [Two-minute demo script](docs/DEMO_SCRIPT.md) — screen-by-screen recording plan
+- [Interview guide](docs/INTERVIEW_GUIDE.md) — five-minute system explanation and likely questions
+- [Security model](docs/SECURITY.md) — threat model and controls
+- [Roadmap](docs/ROADMAP.md) — scoped next steps, not speculative MVP bloat
+
+## Repository map
+
+```text
+app/                 routes, product pages, API handlers
+components/          landing, review desk, report, history UI
+lib/analysis/        schemas, provider orchestration, evidence validation
+lib/supabase/        auth, persistence, configuration
+database/migrations/ Postgres, pgvector, RLS, quotas, private storage
+evaluations/         50-case dataset, runner, latest metrics
+tests/               unit, integration, browser flows
+docs/                architecture, case study, interview and deployment
+.github/workflows/   automated verification
+```
+
+## License
+
+MIT. See [LICENSE](LICENSE).

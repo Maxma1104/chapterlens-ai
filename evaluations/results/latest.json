@@ -1,0 +1,426 @@
+{
+  "metrics": {
+    "cases": 50,
+    "citationAccuracy": 1,
+    "characterRecall": 1,
+    "issueDetectionAccuracy": 0.7,
+    "refusalAccuracy": 1,
+    "hallucinationRate": 0,
+    "averageLatencyMs": 0.08,
+    "totalEstimatedCostUsd": 0,
+    "provider": "deterministic-demo",
+    "generatedAt": "2026-07-18T07:57:57.569Z"
+  },
+  "results": [
+    {
+      "id": "character-01",
+      "category": "character",
+      "citationAccuracy": 1,
+      "characterRecall": 1,
+      "issueCorrect": true,
+      "latencyMs": 3,
+      "costUsd": 0
+    },
+    {
+      "id": "character-02",
+      "category": "character",
+      "citationAccuracy": 1,
+      "characterRecall": 1,
+      "issueCorrect": false,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "character-03",
+      "category": "character",
+      "citationAccuracy": 1,
+      "characterRecall": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "character-04",
+      "category": "character",
+      "citationAccuracy": 1,
+      "characterRecall": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "character-05",
+      "category": "character",
+      "citationAccuracy": 1,
+      "characterRecall": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "character-06",
+      "category": "character",
+      "citationAccuracy": 1,
+      "characterRecall": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "character-07",
+      "category": "character",
+      "citationAccuracy": 1,
+      "characterRecall": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "character-08",
+      "category": "character",
+      "citationAccuracy": 1,
+      "characterRecall": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "character-09",
+      "category": "character",
+      "citationAccuracy": 1,
+      "characterRecall": 1,
+      "issueCorrect": true,
+      "latencyMs": 1,
+      "costUsd": 0
+    },
+    {
+      "id": "character-10",
+      "category": "character",
+      "citationAccuracy": 1,
+      "characterRecall": 1,
+      "issueCorrect": false,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "timeline-01",
+      "category": "timeline",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "timeline-02",
+      "category": "timeline",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "timeline-03",
+      "category": "timeline",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "timeline-04",
+      "category": "timeline",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "timeline-05",
+      "category": "timeline",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "timeline-06",
+      "category": "timeline",
+      "citationAccuracy": 1,
+      "issueCorrect": false,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "timeline-07",
+      "category": "timeline",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "timeline-08",
+      "category": "timeline",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "timeline-09",
+      "category": "timeline",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "timeline-10",
+      "category": "timeline",
+      "citationAccuracy": 1,
+      "issueCorrect": false,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "contradiction-01",
+      "category": "contradiction",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "contradiction-02",
+      "category": "contradiction",
+      "citationAccuracy": 1,
+      "issueCorrect": false,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "contradiction-03",
+      "category": "contradiction",
+      "citationAccuracy": 1,
+      "issueCorrect": false,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "contradiction-04",
+      "category": "contradiction",
+      "citationAccuracy": 1,
+      "issueCorrect": false,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "contradiction-05",
+      "category": "contradiction",
+      "citationAccuracy": 1,
+      "issueCorrect": false,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "contradiction-06",
+      "category": "contradiction",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "contradiction-07",
+      "category": "contradiction",
+      "citationAccuracy": 1,
+      "issueCorrect": false,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "contradiction-08",
+      "category": "contradiction",
+      "citationAccuracy": 1,
+      "issueCorrect": false,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "contradiction-09",
+      "category": "contradiction",
+      "citationAccuracy": 1,
+      "issueCorrect": false,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "contradiction-10",
+      "category": "contradiction",
+      "citationAccuracy": 1,
+      "issueCorrect": false,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "clean-01",
+      "category": "no_issue",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "clean-02",
+      "category": "no_issue",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "clean-03",
+      "category": "no_issue",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "clean-04",
+      "category": "no_issue",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "clean-05",
+      "category": "no_issue",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "clean-06",
+      "category": "no_issue",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "clean-07",
+      "category": "no_issue",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "clean-08",
+      "category": "no_issue",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "clean-09",
+      "category": "no_issue",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "clean-10",
+      "category": "no_issue",
+      "citationAccuracy": 1,
+      "issueCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "refusal-01",
+      "category": "refusal",
+      "citationAccuracy": 1,
+      "refusalCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "refusal-02",
+      "category": "refusal",
+      "citationAccuracy": 1,
+      "refusalCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "refusal-03",
+      "category": "refusal",
+      "citationAccuracy": 1,
+      "refusalCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "refusal-04",
+      "category": "refusal",
+      "citationAccuracy": 1,
+      "refusalCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "refusal-05",
+      "category": "refusal",
+      "citationAccuracy": 1,
+      "refusalCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "refusal-06",
+      "category": "refusal",
+      "citationAccuracy": 1,
+      "refusalCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "refusal-07",
+      "category": "refusal",
+      "citationAccuracy": 1,
+      "refusalCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "refusal-08",
+      "category": "refusal",
+      "citationAccuracy": 1,
+      "refusalCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "refusal-09",
+      "category": "refusal",
+      "citationAccuracy": 1,
+      "refusalCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    },
+    {
+      "id": "refusal-10",
+      "category": "refusal",
+      "citationAccuracy": 1,
+      "refusalCorrect": true,
+      "latencyMs": 0,
+      "costUsd": 0
+    }
+  ]
+}
